@@ -1,13 +1,20 @@
 "use client";
 
+import Link from "next/link";
+import { useConvexAuth } from "convex/react";
+import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
+
 import { cn } from "@/lib/utils";
 import Logo from "@/components/logo";
-import { useScrollTop } from "@/hooks/use-scroll-top";
+import { Spinner } from "@/components/spinner";
+import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Button } from "../ui/button";
+import { useScrollTop } from "@/hooks/use-scroll-top";
 
 const Navbar = () => {
+  const { isAuthenticated, isLoading } = useConvexAuth();
   const scrolled = useScrollTop();
+
   return (
     <nav
       className={cn(
@@ -17,11 +24,27 @@ const Navbar = () => {
     >
       <Logo />
       <div className="md:ml-auto md:justify-end justify-between w-full flex items-center gap-x-2">
-        <Button variant="ghost" size="sm">
-          Log in
-        </Button>
-        <Button size="sm">Get Motion free</Button>
-
+        {isLoading && <Spinner />}
+        {!isAuthenticated && !isLoading && (
+          <>
+            <SignInButton mode="modal">
+              <Button variant="ghost" size="sm">
+                Log in
+              </Button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <Button size="sm">Get BiNote free</Button>
+            </SignUpButton>
+          </>
+        )}
+        {isAuthenticated && !isLoading && (
+          <>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/documents">Enter BiNote</Link>
+            </Button>
+            <UserButton afterSignOutUrl="/" />
+          </>
+        )}
         <ModeToggle />
       </div>
     </nav>
